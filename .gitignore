@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Sanal ortamlar
+venv/
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# macOS
+.DS_Store
+
+# Editör
+.vscode/
+.idea/
+
+# Gizli bilgiler (API anahtarı, şifre vb.)
+.env
+*.key
+
+# Büyük dosyalar: veri setleri ve model ağırlıkları
+*.csv
+*.h5
+*.pt
+*.pth
+*.onnx
+data/
+datasets/
