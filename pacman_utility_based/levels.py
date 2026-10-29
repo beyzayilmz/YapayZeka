@@ -1,6 +1,5 @@
-#haritalar ve doğrulama
-
-from collections import deque
+# haritalar
+# # duvar, . yemek, o enerji topu, P pacman, G hayalet
 
 LEVEL_1 = [
     "#####################",
@@ -22,18 +21,17 @@ LEVEL_1 = [
 
 LEVELS = [LEVEL_1]
 
-WALKABLE = ".oPG "
-
 
 def parse_level(rows):
-    """Haritayı ayrıştırır; (duvarlar, yemekler, toplar, pacman, hayaletler) döner.
-
-    Konumlar (satır, sütun) biçimindedir.
-    """
-    walls, food, pellets, ghosts = set(), set(), set(), []
+    walls = set()
+    food = set()
+    pellets = set()
+    ghosts = []
     pacman = None
-    for r, row in enumerate(rows):
-        for c, ch in enumerate(row):
+
+    for r in range(len(rows)):
+        for c in range(len(rows[r])):
+            ch = rows[r][c]
             if ch == "#":
                 walls.add((r, c))
             elif ch == ".":
@@ -44,34 +42,29 @@ def parse_level(rows):
                 pacman = (r, c)
             elif ch == "G":
                 ghosts.append((r, c))
+
     return walls, food, pellets, pacman, ghosts
 
 
-def validate_level(rows):
-    """Tüm yemek ve enerji toplarının Pacman'den erişilebilir olduğunu doğrular."""
-    widths = {len(r) for r in rows}
-    if len(widths) != 1:
-        raise ValueError("Harita satırları aynı uzunlukta değil")
+def check_level(rows):
+    # tüm yemeklere pacman'den ulaşılabiliyor mu bakıyoruz (BFS)
     walls, food, pellets, pacman, ghosts = parse_level(rows)
+
     if pacman is None:
-        raise ValueError("Haritada Pacman (P) yok")
+        raise ValueError("haritada P yok")
     if len(ghosts) < 2:
-        raise ValueError("En az iki hayalet (G) gerekli")
+        raise ValueError("en az 2 hayalet olmalı")
 
-    seen = {pacman}
-    queue = deque([pacman])
-    while queue:
-        r, c = queue.popleft()
-        for dr, dc in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+    visited = [pacman]
+    queue = [pacman]
+    while len(queue) > 0:
+        r, c = queue.pop(0)
+        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
             nxt = (r + dr, c + dc)
-            if nxt in walls or nxt in seen:
-                continue
-            if not (0 <= nxt[0] < len(rows) and 0 <= nxt[1] < len(rows[0])):
-                continue
-            seen.add(nxt)
-            queue.append(nxt)
+            if nxt not in walls and nxt not in visited:
+                visited.append(nxt)
+                queue.append(nxt)
 
-    unreachable = (food | pellets) - seen
-    if unreachable:
-        raise ValueError(f"Erişilemeyen yemekler var: {sorted(unreachable)}")
-    return True
+    for pos in food | pellets:
+        if pos not in visited:
+            raise ValueError("ulaşılamayan yemek: " + str(pos))
