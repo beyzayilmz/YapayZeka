@@ -76,7 +76,7 @@ class Game:
                 moves.append(d)
         return moves
  
-    def step(self, direction):
+    def step(self, direction, ghosts_move=True):
         if self.is_finished() or not self.can_move(direction):
             return False
  
@@ -102,8 +102,8 @@ class Game:
         if not self.game_over and self.food_left() == 0:
             self.completed = True
 
-        # hayaletler hareket etsin
-        if not self.is_finished():
+        # hayaletler hareket etsin (AI denerken kapatılabilir)
+        if ghosts_move and not self.is_finished():
             old_pacman = self.pacman
             old_ghosts = list(self.ghosts)
             move_ghosts(self)

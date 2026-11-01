@@ -4,6 +4,7 @@ import sys
 import pygame
 
 from game import Game
+from ai import Agent
 from render import draw_map, draw_hud, draw_message
 from settings import *
 
@@ -23,6 +24,8 @@ def main():
     start = pygame.time.get_ticks()
     last_move = start
     end_time = None
+    ai_mode = False    # I tuşu ile AI oynar
+    agent = Agent()
 
     running = True
     while running:
@@ -34,8 +37,15 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
-                elif event.key == pygame.K_r:
+                elif event.key in (pygame.K_r, pygame.K_i):
+                    if event.key == pygame.K_i:
+                        ai_mode = not ai_mode
+                        if ai_mode:
+                            pygame.display.set_caption("Pacman - AI")
+                        else:
+                            pygame.display.set_caption("Pacman")
                     game = Game(0)
+                    agent = Agent()
                     direction = None
                     wanted = None
                     start = now
@@ -53,10 +63,13 @@ def main():
         # belli aralıklarla bir hamle yap
         if not game.is_finished() and now - last_move >= MOVE_DELAY:
             last_move = now
-            if wanted is not None and game.can_move(wanted):
-                direction = wanted
-            if direction is not None and game.can_move(direction):
-                game.step(direction)
+            if ai_mode:
+                game.step(agent.choose_move(game))
+            else:
+                if wanted is not None and game.can_move(wanted):
+                    direction = wanted
+                if direction is not None and game.can_move(direction):
+                    game.step(direction)
             if game.is_finished():
                 end_time = now
 
