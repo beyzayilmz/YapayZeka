@@ -1,7 +1,10 @@
 #oyun kuralları ve durum
 
+import random
+
 from levels import LEVELS, parse_level, check_level
-from settings import MOVE_COST, FOOD_SCORE, PELLET_SCORE, POWER_DURATION
+from ghosts import move_ghosts
+from settings import MOVE_COST, FOOD_SCORE, PELLET_SCORE, GHOST_SCORE, POWER_DURATION, GHOST_START_DELAY, SEED
 
 DIRECTIONS = {
     "UP": (-1, 0),
@@ -20,6 +23,10 @@ class Game:
 
         self.walls, self.food, self.pellets, self.pacman, self.ghosts = parse_level(rows)
 
+        self.ghost_starts = list(self.ghosts)  # yakalanınca buraya dönerler
+        self.ghost_wait = [GHOST_START_DELAY] * len(self.ghosts)
+        self.rng = random.Random(SEED)  # sabit seed, iki turda aynı hareketler
+
         self.score = 0
         self.steps = 0
         self.power = 0 # 0 dan büyükse enerji etkisi var
@@ -37,6 +44,10 @@ class Game:
         g.pellets = set(self.pellets)
         g.pacman = self.pacman
         g.ghosts = list(self.ghosts)
+        g.ghost_starts = self.ghost_starts
+        g.ghost_wait = list(self.ghost_wait)
+        g.rng = random.Random()
+        g.rng.setstate(self.rng.getstate())
         g.score = self.score
         g.steps = self.steps
         g.power = self.power
@@ -85,8 +96,30 @@ class Game:
             self.score += PELLET_SCORE
             self.power = POWER_DURATION
  
-        if self.food_left() == 0:
+        # pacman hareket etti, hayaletle aynı hücrede mi?
+        self.check_collision(self.pacman, list(self.ghosts))
+
+        if not self.game_over and self.food_left() == 0:
             self.completed = True
- 
+
+        # hayaletler hareket etsin
+        if not self.is_finished():
+            old_pacman = self.pacman
+            old_ghosts = list(self.ghosts)
+            move_ghosts(self)
+            self.check_collision(old_pacman, old_ghosts)
+
         return True
-   
+
+    def check_collision(self, old_pacman, old_ghosts):
+        for i in range(len(self.ghosts)):
+            same_cell = self.ghosts[i] == self.pacman
+            # yer değiştirip yanından geçerlerse de çarpmış sayılır
+            swapped = self.ghosts[i] == old_pacman and old_ghosts[i] == self.pacman
+            if same_cell or swapped:
+                if self.power > 0:
+                    self.score += GHOST_SCORE
+                    self.ghosts[i] = self.ghost_starts[i]
+                    self.ghost_wait[i] = GHOST_START_DELAY
+                else:
+                    self.game_over = True

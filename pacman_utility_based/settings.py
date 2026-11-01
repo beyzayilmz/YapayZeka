@@ -12,6 +12,12 @@ POWER_DURATION = 20
 #hayaletler için sabit seed
 SEED = 42
 
+#hayaletler başta kaç hamle beklesin
+GHOST_START_DELAY = 5
+
+#takip eden hayaletin pacman'i kovalama olasılığı
+CHASE_CHANCE = 0.7
+
 FPS = 60
 MOVE_DELAY = 150
 

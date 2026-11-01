@@ -70,6 +70,8 @@ def main():
         draw_map(screen, game)
         if game.completed:
             draw_message(screen, font, "Seviye tamamlandı (R: tekrar)", width, height)
+        if game.game_over:
+            draw_message(screen, font, "Yakalandın! (R: tekrar)", width, height)
         pygame.display.flip()
         clock.tick(FPS)
 
