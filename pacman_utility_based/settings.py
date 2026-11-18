@@ -22,7 +22,7 @@ FPS = 60
 MOVE_DELAY = 150
 
 CELL = 32
-HUD_HEIGHT = 60
+HUD_HEIGHT = 70
 
 BLACK = (0, 0, 0)
 WALL_COLOR = (33, 33, 222)
@@ -33,3 +33,9 @@ GHOST_COLORS = [(255, 0, 0), (255, 184, 255), (0, 255, 255), (255, 184, 82)]
 SCARED_COLOR = (100, 100, 100)
 HUD_COLOR = (20, 20, 30)
 TEXT_COLOR = (240, 240, 240)
+DIM_TEXT = (150, 150, 170)
+HIGHLIGHT = (255, 235, 0)
+WIN_COLOR = (80, 220, 120)
+
+#her oyuncu başlamadan önce geri sayım (ms)
+COUNTDOWN = 3000
